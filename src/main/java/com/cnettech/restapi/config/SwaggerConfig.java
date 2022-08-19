@@ -18,7 +18,7 @@ import springfox.documentation.spring.web.plugins.Docket;
 @EnableWebMvc
 public class SwaggerConfig {
 
-    //http://localhost:8080//swagger-ui/index.html#/
+    //http://localhost:8080/swagger-ui/index.html#/
     
     private ApiInfo swaggerInfo() {
         return new ApiInfoBuilder().title("Cnet Record API")

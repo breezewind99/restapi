@@ -1,7 +1,9 @@
 package com.cnettech.restapi.controller;
 
 import com.cnet.CnetCrypto.CNCrypto;
+import com.cnettech.restapi.common.FFTImage;
 import com.cnettech.restapi.common.WaveProcess;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -25,15 +27,33 @@ public class Media {
 
     @Value("${MEDIA.Storage_Default}")
     private String Storage_Default;
+    @Value("${MEDIA.Temp_Path}")
+    private String TempPath;
+
+    @Value("${FFT.Image_Width}")
+    public int width;
+    @Value("${FFT.Image_Height}")
+    public int height;
+    @Value("${MEDIA.Sox}")
+    public String Sox_Path;
+
+
+
+    public WaveProcess waveProcess;
+
     @GetMapping("/wave")
     public ResponseEntity<InputStreamResource> Wave(@RequestParam(defaultValue = "test") String refer) throws IOException {
 //        localhost:8080/media/wave/?ref=test.mp3
-
+        //waveProcess = new WaveProcess(Sox_Path, width, height);
         System.out.println("ref = " + refer);
         String tmp = "";
         try {
-            CNCrypto aes = new CNCrypto("AES","!@CNET#$");
-            tmp = aes.Decrypt(refer);
+            if(!refer.contains("\\|")) {
+                CNCrypto aes = new CNCrypto("AES","!@CNET#$");
+                tmp = aes.Decrypt(refer);
+            } else {
+                tmp = refer;
+            }
             System.out.println("Convert Valuue : " + tmp);
         } catch (Exception e) {
             e.printStackTrace();
@@ -45,12 +65,14 @@ public class Media {
         String filepath = temp[2];
         String path = (Storage_Default + File.separator + filepath).replace("/",File.separator).replace(File.separator + File.separator,File.separator);
         System.out.println("path = " + path);
-        String TargetFile = "/data/temp/" + Paths.get(path).getFileName().toString();
+        String TargetFile = TempPath + Paths.get(path).getFileName().toString();
         boolean OriginExist = Files.exists(Paths.get(path));
         boolean TargetExist = Files.exists(Paths.get(TargetFile));
         if (!TargetExist) {
             // 임시 폴더에 대상 파일이 없는경우 컨버팅 한다.
-            WaveProcess.WaveConvert(path, TargetFile);
+            Files.createDirectories(Paths.get(TargetFile).getParent());
+            if(waveProcess == null) waveProcess = new WaveProcess(Sox_Path, width, height);
+            waveProcess.WaveConvert(path, TargetFile);
         }
 
         try {
@@ -84,14 +106,18 @@ public class Media {
     }
 
     @GetMapping("/fft")
-    public ResponseEntity<InputStreamResource> Fft(@RequestParam(defaultValue = "test") String refer) throws IOException {
+    public ResponseEntity<InputStreamResource> fft(@RequestParam(defaultValue = "test") String refer) throws IOException {
 //        localhost:8080/media/wave/?ref=test.mp3
 
         System.out.println("ref = " + refer);
         String tmp = "";
         try {
-            CNCrypto aes = new CNCrypto("AES","!@CNET#$");
-            tmp = aes.Decrypt(refer);
+            if(!refer.contains("|")) {
+                CNCrypto aes = new CNCrypto("AES","!@CNET#$");
+                tmp = aes.Decrypt(refer);
+            } else {
+                tmp = refer;
+            }
             System.out.println("Convert Valuue : " + tmp);
         } catch (Exception e) {
             e.printStackTrace();
@@ -103,16 +129,18 @@ public class Media {
         String filepath = temp[2];
         String path = (Storage_Default + File.separator + filepath).replace("/",File.separator).replace(File.separator + File.separator,File.separator);
         System.out.println("path = " + path);
-        String TargetFile = "/data/temp/" + Paths.get(path).getFileName().toString();
+        String TargetFile = TempPath + Paths.get(path).getFileName().toString();
         boolean OriginExist = Files.exists(Paths.get(path));
         boolean TargetExist = Files.exists(Paths.get(TargetFile));
         if (!TargetExist) {
+            Files.createDirectories(Paths.get(TargetFile).getParent());
             // 임시 폴더에 대상 파일이 없는경우 컨버팅 한다.
-            WaveProcess.WaveConvert(path, TargetFile);
+            if(waveProcess == null) waveProcess = new WaveProcess(Sox_Path, width, height);
+            waveProcess.WaveConvert(path, TargetFile);
         }
 
         try {
-            File file = new File(TargetFile);
+            File file = new File(TargetFile.replace(".wav",".jpg"));
             String fileName = file.getName();
             // 파일 확장자
             String ext = fileName.substring(fileName.lastIndexOf(".") + 1);
@@ -133,7 +161,7 @@ public class Media {
                     .headers(header)
                     .contentLength(file.length())
                     //.contentType(MediaType.parseMediaType("application/octet-stream"))
-                    .contentType(MediaType.parseMediaType("audio/mpeg"))
+                    .contentType(MediaType.parseMediaType("image/jpg"))
                     .body(resource3);
         } catch ( Exception e) {
             e.printStackTrace();
@@ -151,7 +179,8 @@ public class Media {
         String path = (Storage_Default + File.separator + filepath).replace("/",File.separator).replace(File.separator + File.separator,File.separator);
         System.out.println("path = " + path);
         String path_Dec = path + ".dec";
-        WaveProcess.WaveDecryption(path, path_Dec);
+        if(waveProcess == null) waveProcess = new WaveProcess(Sox_Path, width, height);
+        waveProcess.WaveDecryption(path, path_Dec);
     }
 
     @GetMapping("/convert")
@@ -161,9 +190,10 @@ public class Media {
         String temp[] = ref.split("\\|");
         // 파일 경로
         String filepath = temp[2];
-        String path = (Storage_Default + File.separator + filepath).replace("/",File.separator).replace(File.separator + File.separator,File.separator);
+        String path = (filepath).replace("/",File.separator).replace(File.separator + File.separator,File.separator);
         System.out.println("path = " + path);
-//        WaveProcess.WaveConvert(path);
+        if(waveProcess == null) waveProcess = new WaveProcess(Sox_Path, width, height);
+        waveProcess.WaveConvert(path, path);
     }
 
     @GetMapping("/decryptstring")
@@ -172,6 +202,27 @@ public class Media {
             CNCrypto aes = new CNCrypto("AES","!@CNET#$");
             String returnValue = aes.Decrypt(ref);
             System.out.println("Convert Valuue : " + returnValue);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @GetMapping("/ffttest")
+    public void ffttest(@RequestParam(defaultValue = "test") String ref) {
+        try {
+
+            System.out.println("ref = " + ref);
+            String temp[] = ref.split("\\|");
+            // 파일 경로
+            String filepath = temp[2];
+            String path = (filepath).replace("/",File.separator).replace(File.separator + File.separator,File.separator);
+            System.out.println("path = " + path);
+            //WaveProcess.MakeImage(path.replace(".wav",".pcm.wav"), path.replace(".wav",".jpg"));
+            if(waveProcess == null) waveProcess = new WaveProcess(Sox_Path, width, height);
+            waveProcess.WaveConvert(path,path);
+            FFTImage.MakeImage(path.replace(".wav",".pcm.wav"), path.replace(".wav",".jpg"));
+            FFTImage.MakeFFT(path.replace(".wav",".pcm.wav"), path.replace(".wav","2.jpg"));
+
         } catch (Exception e) {
             e.printStackTrace();
         }
