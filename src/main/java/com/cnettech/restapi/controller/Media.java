@@ -3,7 +3,7 @@ package com.cnettech.restapi.controller;
 import com.cnet.CnetCrypto.CNCrypto;
 import com.cnettech.restapi.common.FFTImage;
 import com.cnettech.restapi.common.WaveProcess;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -21,6 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+@Slf4j
 @RestController
 @RequestMapping("/media")
 public class Media {
@@ -37,15 +38,14 @@ public class Media {
     @Value("${MEDIA.Sox}")
     public String Sox_Path;
 
-
-
     public WaveProcess waveProcess;
 
     @GetMapping("/wave")
     public ResponseEntity<InputStreamResource> Wave(@RequestParam(defaultValue = "test") String refer) throws IOException {
 //        localhost:8080/media/wave/?ref=test.mp3
         //waveProcess = new WaveProcess(Sox_Path, width, height);
-        System.out.println("ref = " + refer);
+
+        log.info("Wave : refer = " + refer);
         String tmp = "";
         try {
             if(!refer.contains("\\|")) {
@@ -170,14 +170,18 @@ public class Media {
     }
 
     @GetMapping("/decrypt")
-    public void Decrypt(@RequestParam(defaultValue = "test") String ref) throws IOException {
+    public void Decrypt(@RequestParam(defaultValue = "test") String refer) throws IOException {
 //        localhost:8080/media/wave/?ref=test.mp3
-        System.out.println("ref = " + ref);
-        String temp[] = ref.split("\\|");
+        log.info("Decrypt : refer = " + refer);
+        log.debug("Decrypt : refer = " + refer);
+        log.error("Decrypt : refer = " + refer);
+        System.out.println("ref = " + refer);
+        String temp[] = refer.split("\\|");
         // 파일 경로
         String filepath = temp[2];
         String path = (Storage_Default + File.separator + filepath).replace("/",File.separator).replace(File.separator + File.separator,File.separator);
-        System.out.println("path = " + path);
+
+        log.info("Decrypt : path = " + path);
         String path_Dec = path + ".dec";
         if(waveProcess == null) waveProcess = new WaveProcess(Sox_Path, width, height);
         waveProcess.WaveDecryption(path, path_Dec);
