@@ -6,13 +6,18 @@ import ie.corballis.sox.SoXEncoding;
 import ie.corballis.sox.Sox;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 @Slf4j
 public class WaveProcess {
@@ -23,9 +28,21 @@ public class WaveProcess {
         Sox_Path = sox_path;
     }
 
-    public void WaveDecryption(String Source_File, String Target_File) {
+    public String WaveDecryption(String Source_File, String Target_File) {
         int ResultLib = 0;
 
+        if (CheckRiff(Source_File)) {
+            File file = new File(Source_File);
+            File newFile = new File(Target_File);
+
+            try {
+                Files.copy(file.toPath(), newFile.toPath(), REPLACE_EXISTING);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+        if (CheckRiff(Target_File)) return Target_File;
         String[] sValue = new String[] {
                 "02B317631220B55742F5712B5E025B0ED3027CD58E423AFBF8ABEAAA2716BCE1",
                 "B3D00127CB4A695935D34FEB30EC76699FAFDA58A3E9B966254C5E9533090854",
@@ -38,22 +55,27 @@ public class WaveProcess {
                 "E4230B9DECE5879D7304BFC6F8F85314BB6B9226E504F95A2BC3D2E3363838A1",
                 "35FD24B172BC38B1B9278D1A89ADD04F913CD627F6C2DEB94900EA2218BC1933"
         };
-//        String sValue = "02B317631220B55742F5712B5E025B0ED3027CD58E423AFBF8ABEAAA2716BCE1";
-//        String sValue = "B3D00127CB4A695935D34FEB30EC76699FAFDA58A3E9B966254C5E9533090854";
-//        String sValue = "C614C96E7B2BB970BF9DE92A1A0FD98203339870B4E741C04528FA5A1FFFBAC5";
-//        String sValue = "C23896E69FED3B1DC03E989C6013E9D14D1B3DE27D0397001783986D05C5A9D5";
-//        String sValue = "39A2E9B3F8BF3A0452CA8072173EAAF0021F81A83247944E6C0B7BDA3ABC1294";
-//        String sValue = "8029C5982387CD5986FEB3210C73E37F6EB8E133BE2BDDA1A0C20DCBB511FC80";
-//        String sValue = "A1F17FDDCE72385C1E37604F037B9FFD0487656C756247693B5A0AF326E4F29A";
-//        String sValue = "8208237F66FE73DB3E368429053E47AF8F3B05B0BB837195C364014C6D2B8152";
-//        String sValue = "E4230B9DECE5879D7304BFC6F8F85314BB6B9226E504F95A2BC3D2E3363838A1";
-//        String sValue = "35FD24B172BC38B1B9278D1A89ADD04F913CD627F6C2DEB94900EA2218BC1933";
+        File file = new File(Source_File);
+        String fileName = file.getName();
+        int KeyValue = Integer.parseInt(KeyValue(fileName));
 
         final SslEncryption eSslEncryption= Native.load("cnetssl", SslEncryption.class);
         ResultLib = eSslEncryption.AES_Init_SSL("", 0, "25800450", 1);
         log.info("AES_Init_SSL Result : " + ResultLib);
-        ResultLib = eSslEncryption.AES_Dec_SSL_V2(Source_File, Target_File, sValue[2], sValue[2].length(), 1, 0);
+        log.info("AES_Dec_SSL_V2 Check KeyValue : " + KeyValue);
+        ResultLib = eSslEncryption.AES_Dec_SSL_V2(Source_File, Target_File, sValue[KeyValue], sValue[KeyValue].length(), 1, 0);
         log.info("AES_Dec_SSL_V2 File : " + Source_File + ", Result : " + ResultLib);
+        KeyValue = 0;
+        while(!CheckRiff(Target_File)) {
+            log.info("AES_Dec_SSL_V2 Check KeyValue : " + KeyValue);
+            ResultLib = eSslEncryption.AES_Dec_SSL_V2(Source_File, Target_File, sValue[KeyValue], sValue[KeyValue].length(), 1, 0);
+            log.info("AES_Dec_SSL_V2 File : " + Source_File + ", Result : " + ResultLib);
+            KeyValue = KeyValue + 1;
+            if (KeyValue > 9) {
+                break;
+            }
+        }
+        return Target_File;
     }
 
     public boolean CheckRiff(String filename) {
@@ -88,22 +110,19 @@ public class WaveProcess {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        return "";
+        return "0";
     }
 
     public void WaveConvert(String Source_File, String Target_File) {
         System.out.println("Convert Source : " + Source_File + ", Target : " + Target_File);
+
         // MP3로 요청이 올경우 작업처리
-        String source = Source_File.replace(".mp3",".wav");
+        String source = WaveDecryption(Source_File.replace(".mp3",".wav"), Target_File.replace(".mp3",".wav"));
         String target = Target_File.replace(".mp3",".wav");
-
-
 
         Sox sox_pcm = new Sox(Sox_Path);
         Sox sox_mp3 = new Sox(Sox_Path);
         try{
-
-
             System.out.println("Target : " + target.replace(".wav",".pcm.wav"));
             // Gsm To Pcm
             sox_pcm
@@ -118,6 +137,7 @@ public class WaveProcess {
         }
 
         FFTImage.MakeImage(target.replace(".wav",".pcm.wav"), target.replace(".wav",".jpg"));
+        FFTImage.MakeFFT(target.replace(".wav",".pcm.wav"), target.replace(".wav",".txt"));
 
         try{
             System.out.println("Target : " + target.replace(".wav",".mp3"));

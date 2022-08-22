@@ -1,5 +1,7 @@
 package com.cnettech.restapi.common;
 
+import lombok.extern.slf4j.Slf4j;
+
 import javax.imageio.ImageIO;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -12,6 +14,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
+@Slf4j
 public class FFTImage {
     public static int width = 534;
     public static int height = 80;
@@ -19,6 +22,7 @@ public class FFTImage {
 
     public static boolean MakeImage(String Wavfilepath, String Imagefilepath)
     {
+        log.info("FFT 이미지 생성 파일 Src : " + Wavfilepath + ", Tar Img : " + Imagefilepath);
         AudioInputStream audio_input_stream = null;
 
         try {
