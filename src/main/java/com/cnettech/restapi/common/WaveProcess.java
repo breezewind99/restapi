@@ -10,7 +10,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -24,12 +23,12 @@ public class WaveProcess {
 
     public String Sox_Path;
 
-    public WaveProcess(String sox_path, int width, int height) {
+    public WaveProcess(String sox_path) {
         Sox_Path = sox_path;
     }
 
     public String WaveDecryption(String Source_File, String Target_File) {
-        int ResultLib = 0;
+        int ResultLib;
 
         if (CheckRiff(Source_File)) {
             File file = new File(Source_File);
@@ -104,8 +103,8 @@ public class WaveProcess {
             Date date = format.parse(str);
             Calendar calendar = new GregorianCalendar();
             calendar.setTime(date);
-            int year = calendar.get(Calendar.YEAR);
-            log.info("KeyValue : " + filename + ", Result : " + filename.substring(3, 4));
+//            int year = calendar.get(Calendar.YEAR);
+            log.info("KeyValue : " + filename + ", Result : " + filename.charAt(3));
             return filename.substring(3, 4);
         } catch (ParseException e) {
             e.printStackTrace();
@@ -114,7 +113,7 @@ public class WaveProcess {
     }
 
     public void WaveConvert(String Source_File, String Target_File) {
-        System.out.println("Convert Source : " + Source_File + ", Target : " + Target_File);
+        log.info("Convert Source : " + Source_File + ", Target : " + Target_File);
 
         // MP3로 요청이 올경우 작업처리
         String source = WaveDecryption(Source_File.replace(".mp3",".wav"), Target_File.replace(".mp3",".wav"));
@@ -123,7 +122,7 @@ public class WaveProcess {
         Sox sox_pcm = new Sox(Sox_Path);
         Sox sox_mp3 = new Sox(Sox_Path);
         try{
-            System.out.println("Target : " + target.replace(".wav",".pcm.wav"));
+            log.info("Target : " + target.replace(".wav",".pcm.wav"));
             // Gsm To Pcm
             sox_pcm
                     .sampleRate(8000)
@@ -140,7 +139,7 @@ public class WaveProcess {
         FFTImage.MakeFFT(target.replace(".wav",".pcm.wav"), target.replace(".wav",".txt"));
 
         try{
-            System.out.println("Target : " + target.replace(".wav",".mp3"));
+            log.info("Target : " + target.replace(".wav",".mp3"));
             // Gsm To MP3
             sox_mp3
                 .sampleRate(8000)

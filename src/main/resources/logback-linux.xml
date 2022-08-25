@@ -2,7 +2,7 @@
 <configuration>
 
     <!-- 로그파일 저장 경로 -->
-    <property name="LOG_DIR" value="/data/log/mediaserver" />
+    <property name="LOG_DIR" value="./data/log" />
 
     <!-- CONSOLE -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
@@ -13,9 +13,10 @@
         </layout>
     </appender>
     <!-- // CONSOLE -->
+
     <!-- SYSLOG -->
     <appender name="SYSLOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOG_DIR}/syslog.log</file>
+        <file>${LOG_DIR}/mediaserver.log</file>
         <layout class="ch.qos.logback.classic.PatternLayout">
             <Pattern>
                 [%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} : %30logger{5} - %msg%n
@@ -31,14 +32,14 @@
     <!-- // SYSLOG -->
     <!-- ACCESSLOG -->
     <appender name="ACCESSLOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOG_DIR}/accesslog.log</file>
+        <file>${LOG_DIR}/mediaserver_accesslog.log</file>
         <layout class="ch.qos.logback.classic.PatternLayout">
             <Pattern>
                 %msg%n
             </Pattern>
         </layout>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_DIR}/accesslog.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <fileNamePattern>${LOG_DIR}/mediaserver_accesslog.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>10MB</maxFileSize>
             </timeBasedFileNamingAndTriggeringPolicy>

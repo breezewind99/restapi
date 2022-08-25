@@ -1,37 +1,34 @@
 package com.cnettech.restapi.common;
 
+import com.cnettech.restapi.model.RecordRequest;
+import lombok.extern.slf4j.Slf4j;
+
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import com.cnettech.restapi.model.RecordRequest;
-
+@Slf4j
 public class UDPClient {
-    private final static Logger logger = LogManager.getLogger(UDPClient.class);
     public static void SendMsg(String Target_IP, int Target_Port, String Mode, RecordRequest jsonObj) {
         try {
 
             /* Debug
-            System.out.println(jsonObj.DN);
-            System.out.println(jsonObj.USERID);
-            System.out.println(jsonObj.USERNM);
-            System.out.println(jsonObj.PHONE);
-            System.out.println(jsonObj.KEY);
-            System.out.println(jsonObj.DATA1);
-            System.out.println(jsonObj.DATA2);
-            System.out.println(jsonObj.DATA3);
-            System.out.println(jsonObj.DATA4);
-            System.out.println(jsonObj.DATA5);
-            System.out.println(jsonObj.DATA6);
-            System.out.println(jsonObj.DATA7);
-            System.out.println(jsonObj.DATA8);
-            System.out.println(jsonObj.DATA9);
-            System.out.println(jsonObj.DATA10);
+            log.info(jsonObj.DN);
+            log.info(jsonObj.USERID);
+            log.info(jsonObj.USERNM);
+            log.info(jsonObj.PHONE);
+            log.info(jsonObj.KEY);
+            log.info(jsonObj.DATA1);
+            log.info(jsonObj.DATA2);
+            log.info(jsonObj.DATA3);
+            log.info(jsonObj.DATA4);
+            log.info(jsonObj.DATA5);
+            log.info(jsonObj.DATA6);
+            log.info(jsonObj.DATA7);
+            log.info(jsonObj.DATA8);
+            log.info(jsonObj.DATA9);
+            log.info(jsonObj.DATA10);
              */
-            String msg = "";
+            String msg;
             msg = String.format("%s| |%s|%s|%s|%s|%s| | | |%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|", Mode, jsonObj.DN, jsonObj.USERID, jsonObj.USERNM, jsonObj.PHONE, jsonObj.PHONE, jsonObj.KEY,
             (jsonObj.DATA1.equals("") ? " " : jsonObj.DATA1),
             (jsonObj.DATA2.equals("") ? " " : jsonObj.DATA2),
@@ -45,7 +42,7 @@ public class UDPClient {
             (jsonObj.DATA10.equals("") ? " " : jsonObj.DATA10)
             );
 
-            logger.info("[Send Start] Server IP :" + Target_IP + ", Port : " + Target_Port);            
+            log.info("[Send Start] Server IP :" + Target_IP + ", Port : " + Target_Port);
             // 전송할 수 있는 UDP 소켓 생성
             DatagramSocket dsoc = new DatagramSocket();
             
@@ -57,10 +54,10 @@ public class UDPClient {
             dsoc.send(dp);
             dsoc.close();
 
-            logger.info("[Send Success] Send Msg : " + msg);            
+            log.info("[Send Success] Send Msg : " + msg);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
-            logger.warn("[Send fail] Server IP :" + Target_IP + ", Send Msg : " + jsonObj);         
+            log.info(e.getMessage());
+            log.warn("[Send fail] Server IP :" + Target_IP + ", Send Msg : " + jsonObj);
         }
     }
 }

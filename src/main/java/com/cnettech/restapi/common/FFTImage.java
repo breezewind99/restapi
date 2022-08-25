@@ -29,28 +29,28 @@ public class FFTImage {
             File audio_file = new File(Wavfilepath);
             audio_input_stream = AudioSystem.getAudioInputStream(audio_file);
 
-            int 	bytesRead = 0;
+            int 	bytesRead;
             int 	samplesPerPixel = 598;
             int 	bytesPerSample =  (audio_input_stream.getFormat().getSampleSizeInBits() / 8) * audio_input_stream.getFormat().getChannels();
-            byte waveData[] = new byte[samplesPerPixel * bytesPerSample + 1];
+            byte[]  waveData = new byte[samplesPerPixel * bytesPerSample + 1];
 
 		   /*
-     	   System.out.println("---------------------------------------------------");
-           System.out.println("Size:			" + audio_file.length());
-           System.out.println("Number of channels:	" + audio_input_stream.getFormat().getChannels());
-	       System.out.println("Sampling rate:		" + audio_input_stream.getFormat().getSampleRate());
-	       System.out.println("Bit depth:		" + audio_input_stream.getFormat().getSampleSizeInBits());
-	       System.out.println("bytesPerSample:		" + bytesPerSample);
-           System.out.println("---------------------------------------------------");
+     	   log.info("---------------------------------------------------");
+           log.info("Size:			" + audio_file.length());
+           log.info("Number of channels:	" + audio_input_stream.getFormat().getChannels());
+	       log.info("Sampling rate:		" + audio_input_stream.getFormat().getSampleRate());
+	       log.info("Bit depth:		" + audio_input_stream.getFormat().getSampleSizeInBits());
+	       log.info("bytesPerSample:		" + bytesPerSample);
+           log.info("---------------------------------------------------");
            */
 
-            ArrayList<Double> FFTData = new ArrayList<Double>();
+            ArrayList<Double> FFTData = new ArrayList<>();
 
             while(true) {
                 bytesRead = audio_input_stream.read(waveData, 0, samplesPerPixel * bytesPerSample);
                 if (bytesRead <= 0) break;
 
-                int 	LoopI = 0;
+                int 	LoopI;
                 short 	low = 0;
                 short 	high = 0;
 
@@ -63,7 +63,7 @@ public class FFTImage {
                 double lowPercent = ((double)low - Short.MIN_VALUE) / 0xFFFF;
                 double fftValue = (1 - lowPercent - 0.5) * 2;
 
-                //System.out.println("data: " + low + " : " + lowPercent + " : " + String.format("%.4f", fftValue));
+                //log.info("data: " + low + " : " + lowPercent + " : " + String.format("%.4f", fftValue));
 
                 FFTData.add(Double.parseDouble(String.format("%.4f", fftValue)));
             }
@@ -72,19 +72,14 @@ public class FFTImage {
             //Image ����
             return CreateImage(FFTData, Imagefilepath);
         }
-        catch(UnsupportedAudioFileException ef) {
+        catch(UnsupportedAudioFileException | IOException ef) {
             ef.printStackTrace();
-        }
-        catch (IOException e) {
-
-            e.printStackTrace();
         }
 
         if(audio_input_stream != null) {
             try {
                 audio_input_stream.close();
             } catch (IOException e) {
-
                 e.printStackTrace();
             }
         }
@@ -103,14 +98,14 @@ public class FFTImage {
             g.setColor(new Color(23, 26, 32));
             g.fillRect(0, 0, width, height);
 
-            ArrayList<Double> ImageData = new ArrayList<Double>();
+            ArrayList<Double> ImageData = new ArrayList<>();
 
-            int i = 0; int before = 0; int after = 0;
-            double sfactor = 0.0D; double atpoint = 0.0D; double tmp = 0.0D;
+            int i; int before; int after;
+            double sfactor; double atpoint; double tmp;
 
             sfactor = (double)(FFTData.size() - 1) / (width - 1);
 
-            ImageData.add((Double)FFTData.get(0));
+            ImageData.add(FFTData.get(0));
             i = 1;
             while (i < width - 1) {
                 tmp = i * sfactor;
@@ -138,7 +133,7 @@ public class FFTImage {
         }
         catch (Exception e)
         {
-            System.out.println("err");
+            log.info("err");
         }
 
         return false;
@@ -152,18 +147,18 @@ public class FFTImage {
             File audio_file = new File(Wavfilepath);
             audio_input_stream = AudioSystem.getAudioInputStream(audio_file);
 
-            int 	bytesRead = 0;
+            int 	bytesRead;
             int 	samplesPerPixel = 598;
             int 	bytesPerSample =  (audio_input_stream.getFormat().getSampleSizeInBits() / 8) * audio_input_stream.getFormat().getChannels();
-            byte waveData[] = new byte[samplesPerPixel * bytesPerSample + 1];
+            byte[]  waveData = new byte[samplesPerPixel * bytesPerSample + 1];
 
-            System.out.println("---------------------------------------------------");
-            System.out.println("Size:			" + audio_file.length());
-            System.out.println("Number of channels:	" + audio_input_stream.getFormat().getChannels());
-            System.out.println("Sampling rate:		" + audio_input_stream.getFormat().getSampleRate());
-            System.out.println("Bit depth:		" + audio_input_stream.getFormat().getSampleSizeInBits());
-            System.out.println("bytesPerSample:		" + bytesPerSample);
-            System.out.println("---------------------------------------------------");
+            log.info("---------------------------------------------------");
+            log.info("Size:			" + audio_file.length());
+            log.info("Number of channels:	" + audio_input_stream.getFormat().getChannels());
+            log.info("Sampling rate:		" + audio_input_stream.getFormat().getSampleRate());
+            log.info("Bit depth:		" + audio_input_stream.getFormat().getSampleSizeInBits());
+            log.info("bytesPerSample:		" + bytesPerSample);
+            log.info("---------------------------------------------------");
 
             StringBuffer FftBuffer = new StringBuffer();
 
@@ -173,7 +168,7 @@ public class FFTImage {
                 bytesRead = audio_input_stream.read(waveData, 0, samplesPerPixel * bytesPerSample);
                 if (bytesRead <= 0) break;
 
-                int 	LoopI = 0;
+                int 	LoopI;
                 short 	low = 0;
                 short 	high = 0;
 
@@ -186,7 +181,7 @@ public class FFTImage {
                 double lowPercent = ((double)low - Short.MIN_VALUE) / 0xFFFF;
                 double fftValue = (1 - lowPercent - 0.5) * 2;
 
-                //System.out.println("data: " + low + " : " + lowPercent + " : " + String.format("%.4f", fftValue));
+                //log.info("data: " + low + " : " + lowPercent + " : " + String.format("%.4f", fftValue));
 
                 FftBuffer.append(String.format("%.4f", fftValue));
                 FftBuffer.append(",");
@@ -203,12 +198,8 @@ public class FFTImage {
 
             return true;
         }
-        catch(UnsupportedAudioFileException ef) {
+        catch(UnsupportedAudioFileException | IOException ef) {
             ef.printStackTrace();
-        }
-        catch (IOException e) {
-
-            e.printStackTrace();
         }
 
         if(audio_input_stream != null) {

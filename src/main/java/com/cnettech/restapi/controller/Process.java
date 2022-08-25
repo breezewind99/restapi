@@ -36,21 +36,21 @@ public class Process {
 
         // http://녹취서버IP/interface/rec_part_proc.jsp?REC=REC7&DN=1000&USERID=HSI12345&USERNM=홍길동&PHONE=01012345678&KEY=202205091415232008&DATA1=&DATA2=&DATA3=&DATA4=&DATA5=&DATA6=&DATA7=&DATA10=20220509141912222052781
         // try {
-        //     System.out.println(jsonObj.DN);
-        //     System.out.println(jsonObj.USERID);
-        //     System.out.println(jsonObj.USERNM);
-        //     System.out.println(jsonObj.PHONE);
-        //     System.out.println(jsonObj.KEY);
-        //     System.out.println(jsonObj.DATA1);
-        //     System.out.println(jsonObj.DATA2);
-        //     System.out.println(jsonObj.DATA3);
-        //     System.out.println(jsonObj.DATA4);
-        //     System.out.println(jsonObj.DATA5);
-        //     System.out.println(jsonObj.DATA6);
-        //     System.out.println(jsonObj.DATA7);
-        //     System.out.println(jsonObj.DATA8);
-        //     System.out.println(jsonObj.DATA9);
-        //     System.out.println(jsonObj.DATA10);
+        //     log.info(jsonObj.DN);
+        //     log.info(jsonObj.USERID);
+        //     log.info(jsonObj.USERNM);
+        //     log.info(jsonObj.PHONE);
+        //     log.info(jsonObj.KEY);
+        //     log.info(jsonObj.DATA1);
+        //     log.info(jsonObj.DATA2);
+        //     log.info(jsonObj.DATA3);
+        //     log.info(jsonObj.DATA4);
+        //     log.info(jsonObj.DATA5);
+        //     log.info(jsonObj.DATA6);
+        //     log.info(jsonObj.DATA7);
+        //     log.info(jsonObj.DATA8);
+        //     log.info(jsonObj.DATA9);
+        //     log.info(jsonObj.DATA10);
             
         // } catch (Exception e) {
         //     e.printStackTrace();
@@ -70,21 +70,21 @@ public class Process {
     @PutMapping(value = "/stop", consumes = {"application/json"}, produces = {"application/json"})
     public ReturnValue RecordStop(@RequestBody RecordRequest jsonObj) {
         // try {
-        //     System.out.println(jsonObj.DN);
-        //     System.out.println(jsonObj.USERID);
-        //     System.out.println(jsonObj.USERNM);
-        //     System.out.println(jsonObj.PHONE);
-        //     System.out.println(jsonObj.KEY);
-        //     System.out.println(jsonObj.DATA1);
-        //     System.out.println(jsonObj.DATA2);
-        //     System.out.println(jsonObj.DATA3);
-        //     System.out.println(jsonObj.DATA4);
-        //     System.out.println(jsonObj.DATA5);
-        //     System.out.println(jsonObj.DATA6);
-        //     System.out.println(jsonObj.DATA7);
-        //     System.out.println(jsonObj.DATA8);
-        //     System.out.println(jsonObj.DATA9);
-        //     System.out.println(jsonObj.DATA10);
+        //     log.info(jsonObj.DN);
+        //     log.info(jsonObj.USERID);
+        //     log.info(jsonObj.USERNM);
+        //     log.info(jsonObj.PHONE);
+        //     log.info(jsonObj.KEY);
+        //     log.info(jsonObj.DATA1);
+        //     log.info(jsonObj.DATA2);
+        //     log.info(jsonObj.DATA3);
+        //     log.info(jsonObj.DATA4);
+        //     log.info(jsonObj.DATA5);
+        //     log.info(jsonObj.DATA6);
+        //     log.info(jsonObj.DATA7);
+        //     log.info(jsonObj.DATA8);
+        //     log.info(jsonObj.DATA9);
+        //     log.info(jsonObj.DATA10);
         // } catch (Exception e) {
         //     e.printStackTrace();
         // }
@@ -102,21 +102,21 @@ public class Process {
     @PutMapping(value = "/post", consumes = {"application/json"}, produces = {"application/json"})
     public ReturnValue RecordPost(@RequestBody RecordRequest jsonObj) {
         // try {
-        //     System.out.println(jsonObj.DN);
-        //     System.out.println(jsonObj.USERID);
-        //     System.out.println(jsonObj.USERNM);
-        //     System.out.println(jsonObj.PHONE);
-        //     System.out.println(jsonObj.KEY);
-        //     System.out.println(jsonObj.DATA1);
-        //     System.out.println(jsonObj.DATA2);
-        //     System.out.println(jsonObj.DATA3);
-        //     System.out.println(jsonObj.DATA4);
-        //     System.out.println(jsonObj.DATA5);
-        //     System.out.println(jsonObj.DATA6);
-        //     System.out.println(jsonObj.DATA7);
-        //     System.out.println(jsonObj.DATA8);
-        //     System.out.println(jsonObj.DATA9);
-        //     System.out.println(jsonObj.DATA10);
+        //     log.info(jsonObj.DN);
+        //     log.info(jsonObj.USERID);
+        //     log.info(jsonObj.USERNM);
+        //     log.info(jsonObj.PHONE);
+        //     log.info(jsonObj.KEY);
+        //     log.info(jsonObj.DATA1);
+        //     log.info(jsonObj.DATA2);
+        //     log.info(jsonObj.DATA3);
+        //     log.info(jsonObj.DATA4);
+        //     log.info(jsonObj.DATA5);
+        //     log.info(jsonObj.DATA6);
+        //     log.info(jsonObj.DATA7);
+        //     log.info(jsonObj.DATA8);
+        //     log.info(jsonObj.DATA9);
+        //     log.info(jsonObj.DATA10);
         // } catch (Exception e) {
         //     e.printStackTrace();
         // }
