@@ -27,9 +27,19 @@ public class WaveProcess {
         Sox_Path = sox_path;
     }
 
+
+    /**
+     *
+     * @param Source_File
+     * @param Target_File
+     * @return 대상 파일
+     */
     public String WaveDecryption(String Source_File, String Target_File) {
         int ResultLib;
-
+        if (Source_File.equals("") || Target_File.equals("")) {
+            log.error(String.format("Error WaveDecryption Source : %s, Target : %s", Source_File, Target_File));
+            return "";
+        }
         try {
             if (CheckRiff(Source_File)) {
                 File file = new File(Source_File);
@@ -37,7 +47,9 @@ public class WaveProcess {
                 try {
                     Files.copy(file.toPath(), newFile.toPath(), REPLACE_EXISTING);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    log.error(String.format("Error WaveDecryption FileCopy Source : %s, Target : %s", Source_File, Target_File));
+                    //e.printStackTrace();
+                    return "";
                 }
             }
 
@@ -93,7 +105,7 @@ public class WaveProcess {
             }
         } catch (Exception e){
             log.error("CheckRiff Error : " + filename);
-            throw new HandledException("CheckRiff","Failed to connect to database", e);
+            throw new HandledException("CheckRiff","CheckRiff Exception", e);
         }
         return false;
     }
@@ -116,44 +128,58 @@ public class WaveProcess {
     }
 
     public String WaveConvert(String Source_File, String Target_File) {
-        log.info("Convert Source : " + Source_File + ", Target : " + Target_File);
+
+        // 대상 및 원본 파일명이 없는지 여부 체크
+        if (Source_File.equals("") || Target_File.equals("")) {
+            log.error(String.format("Error WaveConvert Source : %s, Target : %s", Source_File, Target_File));
+            return "";
+        }
+        log.info(String.format("WaveConvert Start Source : %s, Target : %s", Source_File, Target_File));
+
 
         // MP3로 요청이 올경우 작업처리
-        String source = WaveDecryption(Source_File.replace(".mp3",".wav"), Target_File.replace(".mp3",".wav"));
-        String target = Target_File.replace(".mp3",".wav");
+        String tmp_Source_File = Source_File.replace(".mp3",".wav");
+        String tmp_Target_File = Target_File.replace(".mp3",".wav");
 
-        if (source.equals("")) return "";
+        if (tmp_Source_File.equals("")) return "";
 
         Sox sox_pcm = new Sox(Sox_Path);
         Sox sox_mp3 = new Sox(Sox_Path);
         try{
-            log.info("Target : " + target.replace(".wav",".pcm.wav"));
+            log.info(String.format("WaveConvert PCM Make Source : %s, Target : %s" ,tmp_Source_File, tmp_Target_File.replace(".wav",".pcm.wav")));
             // Gsm To Pcm
             sox_pcm
                     .sampleRate(8000)
-                    .inputFile(source)
+                    .inputFile(tmp_Source_File)
                     .encoding(SoXEncoding.SIGNED_INTEGER)
                     .bits(16)
-                    .outputFile(target.replace(".wav",".pcm.wav"))
+                    .outputFile(tmp_Target_File.replace(".wav",".pcm.wav"))
                     .execute();
         } catch (Exception e){
-            e.printStackTrace();
+            log.error(String.format("Error WaveConvert Source : %s, Target : %s", Source_File, Target_File));
+            return "";
         }
 
-        FFTImage.MakeImage(target.replace(".wav",".pcm.wav"), target.replace(".wav",".jpg"));
-        FFTImage.MakeFFT(target.replace(".wav",".pcm.wav"), target.replace(".wav",".txt"));
+        // FFT jpg이미지 생성
+        log.info(String.format("WaveConvert MakeImage Make Source : %s, Target : %s" ,tmp_Source_File, tmp_Target_File.replace(".wav",".jpg")));
+        FFTImage.MakeImage(tmp_Target_File.replace(".wav",".pcm.wav"), tmp_Target_File.replace(".wav",".jpg"));
+
+        // FFT txt파일 생성
+        log.info(String.format("WaveConvert MakeFFT Make Source : %s, Target : %s" ,tmp_Source_File, tmp_Target_File.replace(".wav",".txt")));
+        FFTImage.MakeFFT(tmp_Target_File.replace(".wav",".pcm.wav"), tmp_Target_File.replace(".wav",".txt"));
 
         try{
-            log.info("Target : " + target.replace(".wav",".mp3"));
+            log.info(String.format("WaveConvert MP3 Make Source : %s, Target : %s" ,tmp_Source_File, tmp_Target_File.replace(".wav",".mp3")));
             // Gsm To MP3
             sox_mp3
                 .sampleRate(8000)
-                .inputFile(source)
+                .inputFile(tmp_Source_File)
                 .argument("-t", "mp3")
-                .outputFile(target.replace(".wav",".mp3"))
+                .outputFile(tmp_Target_File.replace(".wav",".mp3"))
                 .execute();
         } catch (Exception e){
-            e.printStackTrace();
+            log.error(String.format("Error WaveConvert Source : %s, Target : %s", Source_File, Target_File));
+            return "";
         }
         return Target_File;
     }
