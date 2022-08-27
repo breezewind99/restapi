@@ -14,8 +14,8 @@ class RestapiApplicationTests {
 	@Test
 	void readtest() {
 		WaveProcess waveProcess = new WaveProcess("test");
-		waveProcess.CheckRiff("E:\\Project_Java\\recorddata\\20220820\\02\\20220820024707_19906.tx");
-		waveProcess.CheckRiff("E:\\Project_Java\\recorddata\\20220820\\02\\20220820024707_19906.wav");
+		//waveProcess.CheckRiff("E:\\Project_Java\\recorddata\\20220820\\02\\20220820024707_19906.tx");
+		//waveProcess.CheckRiff("E:\\Project_Java\\recorddata\\20220820\\02\\20220820024707_19906.wav");
 		waveProcess.KeyValue("20220820024707_19906.wav");
 		waveProcess.KeyValue("20210101010101_19906.wav");
 	}

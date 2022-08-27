@@ -12,10 +12,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Map;
 
 @CrossOrigin(origins = "*")
 @Slf4j
@@ -37,23 +39,26 @@ public class Media {
 
     public WaveProcess waveProcess;
 
-    @GetMapping("/wave")
-    public ResponseEntity<InputStreamResource> Wave(@RequestParam(defaultValue = "test") String refer) throws IOException {
-//        localhost:8080/media/wave/?ref=test.mp3
-        //waveProcess = new WaveProcess(Sox_Path, width, height);
+    public String ProcessMsg(String refer) {
 
-        log.info("Wave : refer = " + refer);
-        String tmp = "";
+        String tmp;
         try {
             if(!refer.contains("|")) {
+                String UrlDecode = URLDecoder.decode(refer,"UTF-8");
                 CNCrypto aes = new CNCrypto("AES","!@CNET#$");
-                tmp = aes.Decrypt(refer);
+                tmp = aes.Decrypt(UrlDecode);
             } else {
                 tmp = refer;
             }
-            log.info("Convert Valuue : " + tmp);
+            log.info("Decrypt Value : " + tmp);
+        } catch (UnsupportedEncodingException e) {
+            log.error("UrlDecode Error : " + refer);
+            //e.printStackTrace();
+            return "";
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("CNCrypto.Decrypt Error : " + refer);
+            //e.printStackTrace();
+            return "";
         }
 
         String[] temp = tmp.split("\\|");
@@ -61,34 +66,97 @@ public class Media {
         // 파일 경로
         String filepath = temp[2];
         String path = (Storage_Default + File.separator + filepath).replace("/",File.separator).replace(File.separator + File.separator,File.separator);
-        log.info("path = " + path);
+        log.info("Storage Path = " + path);
         String TargetFile = TempPath + Paths.get(path).getFileName().toString();
-//        boolean OriginExist = Files.exists(Paths.get(path));
         boolean TargetExist = Files.exists(Paths.get(TargetFile));
         if (!TargetExist) {
             // 임시 폴더에 대상 파일이 없는경우 컨버팅 한다.
-            Files.createDirectories(Paths.get(TargetFile).getParent());
-            if(waveProcess == null) waveProcess = new WaveProcess(Sox_Path);
-            waveProcess.WaveConvert(path, TargetFile);
+            try{
+                Files.createDirectories(Paths.get(TargetFile).getParent());
+                if(waveProcess == null) waveProcess = new WaveProcess(Sox_Path);
+                TargetFile = waveProcess.WaveConvert(path, TargetFile);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return "";
+            }
+        }
+        return TargetFile;
+    }
+
+    public HttpHeaders SetHeader() {
+        HttpHeaders header = new HttpHeaders();
+        header.add("Access-Control-Allow-Headers","origin, x-requested-with, content-type, accept");
+//            header.add("Cache-Control", "no-cache, no-store, must-revalidate");
+//            header.add("Pragma", "no-cache");
+        header.add("Connection", "Close");
+        header.add("Server", "Cnet Media WebServer");
+        header.add("Accept-Ranges", "bytes");
+//            header.add("Expires", "0");
+        return header;
+    }
+
+    public ResponseEntity SetError(String ErrorString) {
+        return ResponseEntity.ok()
+                .headers(SetHeader())
+                .contentLength(ErrorString.length())
+                .contentType(MediaType.parseMediaType("text/plain"))
+                .body(ErrorString);
+    }
+
+    @GetMapping("/wave")
+    public ResponseEntity Wave(@RequestParam(defaultValue = "test") String refer) {
+        log.info("Wave : refer = " + refer);
+        String TargetFile = ProcessMsg(refer);
+
+        if (TargetFile.equals("")) {
+            return SetError("Error Reading File");
         }
 
         try {
+            log.info("Wave : TargetFile = " + TargetFile);
             File file = new File(TargetFile);
-//            String fileName = file.getName();
-            // 파일 확장자
-//            String ext = fileName.substring(fileName.lastIndexOf(".") + 1);
-//            Path fPath = Paths.get(file.getAbsolutePath());
 
-            HttpHeaders header = new HttpHeaders();
-            //header.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName);
-            header.add("Cache-Control", "no-cache, no-store, must-revalidate");
-            header.add("Pragma", "no-cache");
-            header.add("Expires", "0");
 
             // 대용량일 경우 resource3을 사용해야함
 //	        ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(fPath ));
 //	        Resource resouce2 = resourceLoader.getResource(path);
-            InputStreamResource resource3 = new InputStreamResource(new FileInputStream(file));
+            InputStreamResource resource3 = new InputStreamResource(Files.newInputStream(file.toPath()));
+
+            return ResponseEntity.ok()
+                    .headers(SetHeader())
+                    .contentLength(file.length())
+                    .contentType(MediaType.parseMediaType("audio/wav"))
+                    .body(resource3);
+        } catch ( Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @GetMapping("/mp3")
+    public ResponseEntity<InputStreamResource> MP3(@RequestHeader Map<String, String> headers, @RequestParam(defaultValue = "test") String refer) {
+
+        log.info("MP3 : refer = " + refer);
+        log.info("Header : refer = " + headers);
+        String TargetFile = ProcessMsg(refer);
+
+        try {
+            log.info("MP3 : TargetFile = " + TargetFile.replace(".wav",".mp3"));
+            File file = new File(TargetFile.replace(".wav",".mp3"));
+
+            HttpHeaders header = new HttpHeaders();
+            header.add("Access-Control-Allow-Headers","origin, x-requested-with, content-type, accept");
+//            header.add("Cache-Control", "no-cache, no-store, must-revalidate");
+//            header.add("Pragma", "no-cache");
+            header.add("Connection", "Close");
+            header.add("Server", "Cnet Media WebServer");
+            header.add("Accept-Ranges", "bytes");
+//            header.add("Expires", "0");
+
+            // 대용량일 경우 resource3을 사용해야함
+//	        ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(fPath ));
+//	        Resource resouce2 = resourceLoader.getResource(path);
+            InputStreamResource resource3 = new InputStreamResource(Files.newInputStream(file.toPath()));
 
             return ResponseEntity.ok()
                     .headers(header)
@@ -103,49 +171,15 @@ public class Media {
     }
 
     @GetMapping("/fft")
-    public ResponseEntity<InputStreamResource> fft(@RequestParam(defaultValue = "test") String refer) throws IOException {
-//        localhost:8080/media/wave/?ref=test.mp3
-
-        log.info("ref = " + refer);
-        String tmp = "";
-        try {
-            if(!refer.contains("|")) {
-                CNCrypto aes = new CNCrypto("AES","!@CNET#$");
-                tmp = aes.Decrypt(refer);
-            } else {
-                tmp = refer;
-            }
-            log.info("Convert Value : " + tmp);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        String[] temp = tmp.split("\\|");
-
-        // 파일 경로
-        String filepath = temp[2];
-        String path = (Storage_Default + File.separator + filepath).replace("/",File.separator).replace(File.separator + File.separator,File.separator);
-        log.info("path = " + path);
-        String TargetFile = TempPath + Paths.get(path).getFileName().toString();
-//        boolean OriginExist = Files.exists(Paths.get(path));
-        boolean TargetExist = Files.exists(Paths.get(TargetFile));
-        if (!TargetExist) {
-            Files.createDirectories(Paths.get(TargetFile).getParent());
-            // 임시 폴더에 대상 파일이 없는경우 컨버팅 한다.
-            if(waveProcess == null) waveProcess = new WaveProcess(Sox_Path);
-            waveProcess.WaveConvert(path, TargetFile);
-        }
+    public ResponseEntity<InputStreamResource> fft(@RequestParam(defaultValue = "test") String refer) {
+        log.info("FFT : refer = " + refer);
+        String TargetFile = ProcessMsg(refer);
 
         try {
-            log.info("FFT 요청 파일명 : " + TargetFile.replace(".mp3",".wav").replace(".wav",".jpg"));
-            File file = new File(TargetFile.replace(".mp3",".wav").replace(".wav",".jpg"));
-//            String fileName = file.getName();
-            // 파일 확장자
-//            String ext = fileName.substring(fileName.lastIndexOf(".") + 1);
-//            Path fPath = Paths.get(file.getAbsolutePath());
+            log.info("FFT : TargetFile = " + TargetFile.replace(".wav",".jpg"));
+            File file = new File(TargetFile.replace(".wav",".jpg"));
 
             HttpHeaders header = new HttpHeaders();
-            //header.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName);
             header.add("Cache-Control", "no-cache, no-store, must-revalidate");
             header.add("Pragma", "no-cache");
             header.add("Expires", "0");
@@ -153,7 +187,7 @@ public class Media {
             // 대용량일 경우 resource3을 사용해야함
 //	        ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(fPath ));
 //	        Resource resouce2 = resourceLoader.getResource(path);
-            InputStreamResource resource3 = new InputStreamResource(new FileInputStream(file));
+            InputStreamResource resource3 = new InputStreamResource(Files.newInputStream(file.toPath()));
 
             return ResponseEntity.ok()
                     .headers(header)
@@ -282,7 +316,7 @@ public class Media {
             // 대용량일 경우 resource3을 사용해야함
 //	        ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(fPath ));
 //	        Resource resouce2 = resourceLoader.getResource(path);
-            InputStreamResource resource3 = new InputStreamResource(new FileInputStream(file));
+            InputStreamResource resource3 = new InputStreamResource(Files.newInputStream(file.toPath()));
 
             return ResponseEntity.ok()
                     .headers(header)
