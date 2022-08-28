@@ -1,7 +1,6 @@
 package com.cnettech.restapi.controller;
 
 import com.cnet.CnetCrypto.CNCrypto;
-import com.cnettech.restapi.common.FFTImage;
 import com.cnettech.restapi.common.LibFile;
 import com.cnettech.restapi.common.WaveProcess;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -38,6 +36,27 @@ public class Media {
 
     public WaveProcess waveProcess;
 
+    private String DecodeRef(String refer) {
+        String ReturnValue = "";
+        try {
+            CNCrypto aes = new CNCrypto("AES","!@CNET#$");
+            ReturnValue = aes.Decrypt(refer);
+            return ReturnValue;
+        }catch (Exception e) {
+
+        }
+
+        try {
+            String tmp_decode = URLDecoder.decode(refer,"UTF-8");
+            CNCrypto aes = new CNCrypto("AES","!@CNET#$");
+            ReturnValue = aes.Decrypt(tmp_decode);
+            return ReturnValue;
+        }catch (Exception e) {
+
+        }
+        return ReturnValue;
+    }
+
     /**
      *
      * @param refer 요청 내용
@@ -46,22 +65,17 @@ public class Media {
     public String ProcessMsg(String refer) {
 
         String tmp;
+        log.info("ProcessMsg refer : " + refer);
         try {
             if(!refer.contains("|")) {
-                String UrlDecode = URLDecoder.decode(refer,"UTF-8");
-                CNCrypto aes = new CNCrypto("AES","!@CNET#$");
-                tmp = aes.Decrypt(UrlDecode);
+                tmp = DecodeRef(refer);
             } else {
                 tmp = refer;
             }
             log.info("Decrypt Value : " + tmp);
-        } catch (UnsupportedEncodingException e) {
-            log.error("UrlDecode Error : " + refer);
-            //e.printStackTrace();
-            return "";
         } catch (Exception e) {
             log.error("CNCrypto.Decrypt Error : " + refer);
-            //e.printStackTrace();
+            e.printStackTrace();
             return "";
         }
 
@@ -71,13 +85,21 @@ public class Media {
         String filepath = Request[2];
 
         // 원본 파일명 세팅
-        String SourceFilename = (Storage_Default + File.separator + filepath).replace("/",File.separator).replace(File.separator + File.separator, File.separator);
+        String SourceFilename = (Storage_Default + File.separator + filepath).replace("/",File.separator)
+                .replace(File.separator + File.separator, File.separator)
+                .replace(".mp3",".wav")
+                .replace(".jpg",".wav");
 
         // 대상 파일명 세팅
         String TargetFilename = TempPath + Paths.get(SourceFilename).getFileName().toString();
 
         log.info(String.format("Storage File = %s, Target File = %s", SourceFilename, TargetFilename));
 
+        // 원본 파일 존재 여부 확인
+        if (!LibFile.FileExist(SourceFilename)) {
+            log.error(String.format("ProcessMsg Origin File Not Found : %s" , SourceFilename));
+            return "";
+        }
         // 임시 폴더에 대상파일이 있는지 확인
         if (!LibFile.FileExist(TargetFilename)) {
             // 임시 폴더에 대상파일이 없음 -> 파일 신규 생성 (jpg, wav, mp3, pcm)
@@ -162,7 +184,7 @@ public class Media {
     }
 
     @GetMapping("/fft")
-    public ResponseEntity<InputStreamResource> FFT(@RequestParam(defaultValue = "test") String refer) {
+    public ResponseEntity FFT(@RequestParam(defaultValue = "test") String refer) {
         log.info("FFT : refer = " + refer);
         String TargetFile = ProcessMsg(refer);
 
@@ -184,7 +206,7 @@ public class Media {
     }
 
     @GetMapping("/ffttext")
-    public ResponseEntity<InputStreamResource> FFT_Text(@RequestParam(defaultValue = "test") String refer) {
+    public ResponseEntity FFT_Text(@RequestParam(defaultValue = "test") String refer) {
         log.info("FFTTEXT : refer = " + refer);
         String TargetFile = ProcessMsg(refer);
 
@@ -207,67 +229,41 @@ public class Media {
         }
     }
 
-//    @GetMapping("/decrypt")
-    public void Decrypt(@RequestParam(defaultValue = "test") String refer) {
-//        localhost:8080/media/wave/?ref=test.mp3
-        log.info("Decrypt : refer = " + refer);
-        log.debug("Decrypt : refer = " + refer);
-        log.error("Decrypt : refer = " + refer);
-        log.info("ref = " + refer);
-        String[] temp = refer.split("\\|");
-        // 파일 경로
-        String filepath = temp[2];
-        String path = (Storage_Default + File.separator + filepath).replace("/",File.separator).replace(File.separator + File.separator,File.separator);
+    @GetMapping("/download")
+    public ResponseEntity Download(@RequestParam(defaultValue = "test") String refer) {
+        log.info("Download : refer = " + refer);
+        String TargetFile = ProcessMsg(refer);
 
-        log.info("Decrypt : path = " + path);
-        String path_Dec = path + ".dec";
-        if(waveProcess == null) waveProcess = new WaveProcess(Sox_Path);
-        waveProcess.WaveDecryption(path, path_Dec);
+        if (TargetFile.equals("")) return SetError("Error Reading File");
+
+        try {
+            log.info(String.format("Download TargetFile : %s", TargetFile));
+            File file = new File(TargetFile);
+
+            InputStreamResource resource = new InputStreamResource(Files.newInputStream(file.toPath()));
+            HttpHeaders downloadHeader = SetHeader();
+            downloadHeader.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + file.getName());
+            return ResponseEntity.ok()
+                    .headers(downloadHeader)
+                    .contentLength(file.length())
+                    .contentType(MediaType.parseMediaType("application/octet-stream"))
+                    .body(resource);
+        } catch ( Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
+
 
 //    @GetMapping("/convert")
     public void Convert(@RequestParam(defaultValue = "test") String ref) {
 //        localhost:8080/media/wave/?ref=test.mp3
-        log.info("ref = " + ref);
-        String[] temp = ref.split("\\|");
-        // 파일 경로
-        String filepath = temp[2];
-        String path = (filepath).replace("/",File.separator).replace(File.separator + File.separator,File.separator);
-        log.info("path = " + path);
-        if(waveProcess == null) waveProcess = new WaveProcess(Sox_Path);
-        waveProcess.WaveConvert(path, path);
     }
 
-//    @GetMapping("/decryptstring")
-    public void decryptstring(@RequestParam(defaultValue = "test") String ref) {
-        try {
-            CNCrypto aes = new CNCrypto("AES","!@CNET#$");
-            String returnValue = aes.Decrypt(ref);
-            log.info("Convert Valuue : " + returnValue);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
 //    @GetMapping("/ffttest")
     public void ffttest(@RequestParam(defaultValue = "test") String ref) {
-        try {
 
-            log.info("ref = " + ref);
-            String[] temp = ref.split("\\|");
-            // 파일 경로
-            String filepath = temp[2];
-            String path = (filepath).replace("/",File.separator).replace(File.separator + File.separator,File.separator);
-            log.info("path = " + path);
-            //WaveProcess.MakeImage(path.replace(".wav",".pcm.wav"), path.replace(".wav",".jpg"));
-            if(waveProcess == null) waveProcess = new WaveProcess(Sox_Path);
-            waveProcess.WaveConvert(path,path);
-            FFTImage.MakeImage(path.replace(".wav",".pcm.wav"), path.replace(".wav",".jpg"));
-            FFTImage.MakeFFT(path.replace(".wav",".pcm.wav"), path.replace(".wav","2.jpg"));
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
 }

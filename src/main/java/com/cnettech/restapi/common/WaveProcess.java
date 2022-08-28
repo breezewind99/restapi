@@ -41,7 +41,10 @@ public class WaveProcess {
             return "";
         }
         try {
-            if (CheckRiff(Source_File)) {
+            log.info(String.format("WaveDecryption CheckRiff : %s", Source_File));
+
+            // 파일이 없으면 복사
+            if (!LibFile.FileExist(Target_File)) {
                 File file = new File(Source_File);
                 File newFile = new File(Target_File);
                 try {
@@ -53,6 +56,7 @@ public class WaveProcess {
                 }
             }
 
+            // 대상 파일의 복호화 처리
             if (CheckRiff(Target_File)) return Target_File;
             String[] sValue = new String[] {
                     "02B317631220B55742F5712B5E025B0ED3027CD58E423AFBF8ABEAAA2716BCE1",
