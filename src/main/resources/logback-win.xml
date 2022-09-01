@@ -2,7 +2,7 @@
 <configuration>
 
     <!-- 로그파일 저장 경로 -->
-    <property name="LOG_DIR" value="c:\\logback" />
+    <property name="LOG_DIR" value="d:\\logback" />
 
     <!-- CONSOLE -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
