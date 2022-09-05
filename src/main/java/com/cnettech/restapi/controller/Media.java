@@ -188,6 +188,7 @@ public class Media {
                     .contentType(MediaType.parseMediaType("audio/mpeg"))
                     .body(resource);
         } catch ( Exception e) {
+            e.printStackTrace();
             return SetError("Error Loading File");
         }
     }
