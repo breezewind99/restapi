@@ -24,6 +24,10 @@ public class Media {
 
     @Value("${MEDIA.Storage_Default}")
     private String Storage_Default;
+
+    @Value("${MEDIA.Storage_Backup}")
+    private String Storage_Backup;
+
     @Value("${MEDIA.Temp_Path}")
     private String TempPath;
 
@@ -86,6 +90,11 @@ public class Media {
 
         // 원본 파일명 세팅
         String SourceFilename = (Storage_Default + File.separator + filepath).replace("/",File.separator)
+                .replace(File.separator + File.separator, File.separator)
+                .replace(".mp3",".wav")
+                .replace(".jpg",".wav");
+
+        String SourceFilename2 = (Storage_Backup + File.separator + filepath).replace("/",File.separator)
                 .replace(File.separator + File.separator, File.separator)
                 .replace(".mp3",".wav")
                 .replace(".jpg",".wav");
