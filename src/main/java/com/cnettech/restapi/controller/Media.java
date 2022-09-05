@@ -89,15 +89,20 @@ public class Media {
         String filepath = Request[2];
 
         // 원본 파일명 세팅
-        String SourceFilename = (Storage_Default + File.separator + filepath).replace("/",File.separator)
-                .replace(File.separator + File.separator, File.separator)
-                .replace(".mp3",".wav")
-                .replace(".jpg",".wav");
+        String SourceFilename = "";
 
-        String SourceFilename2 = (Storage_Backup + File.separator + filepath).replace("/",File.separator)
+        SourceFilename = (Storage_Default + File.separator + filepath).replace("/",File.separator)
                 .replace(File.separator + File.separator, File.separator)
                 .replace(".mp3",".wav")
                 .replace(".jpg",".wav");
+        if (!LibFile.FileExist(SourceFilename)) {
+            // 최초 자료가 없을 경우
+            // 백업에서 조회한다
+            SourceFilename = (Storage_Backup + File.separator + filepath).replace("/", File.separator)
+                    .replace(File.separator + File.separator, File.separator)
+                    .replace(".mp3", ".wav")
+                    .replace(".jpg", ".wav");
+        }
 
         // 대상 파일명 세팅
         String TargetFilename = TempPath + Paths.get(SourceFilename).getFileName().toString();
