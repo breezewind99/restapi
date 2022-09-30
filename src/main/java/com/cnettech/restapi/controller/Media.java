@@ -10,6 +10,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import java.io.File;
 import java.net.URLDecoder;
@@ -149,6 +150,7 @@ public class Media {
                 .body(ErrorString);
     }
 
+    @ApiIgnore
     @GetMapping("/wave")
     public ResponseEntity Wave(@RequestParam(defaultValue = "test") String refer) {
         log.info("Wave : refer = " + refer);
@@ -173,6 +175,7 @@ public class Media {
         }
     }
 
+    @ApiIgnore
     @GetMapping("/mp3")
     public ResponseEntity MP3(@RequestParam(defaultValue = "test") String refer) {
 
@@ -198,6 +201,7 @@ public class Media {
         }
     }
 
+    @ApiIgnore
     @GetMapping("/fft")
     public ResponseEntity FFT(@RequestParam(defaultValue = "test") String refer) {
         log.info("FFT : refer = " + refer);
@@ -220,6 +224,7 @@ public class Media {
         }
     }
 
+    @ApiIgnore
     @GetMapping("/ffttext")
     public ResponseEntity FFT_Text(@RequestParam(defaultValue = "test") String refer) {
         log.info("FFTTEXT : refer = " + refer);
@@ -244,6 +249,7 @@ public class Media {
         }
     }
 
+    @ApiIgnore
     @GetMapping("/download")
     public ResponseEntity Download(@RequestParam(defaultValue = "test") String refer) {
         log.info("Download : refer = " + refer);

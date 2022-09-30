@@ -10,12 +10,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import springfox.documentation.annotations.ApiIgnore;
 
 @Slf4j
 @RestController
 @RequestMapping("/encryption")
 public class Encryption {
 
+    @ApiIgnore
     @GetMapping(value = "/encrypt", produces = {"text/plain"})
     public String encryptstring(@RequestParam(defaultValue = "Normal String") String refer) {
         try {
@@ -27,6 +29,7 @@ public class Encryption {
         }
     }
 
+    @ApiIgnore
     @GetMapping(value ="/decrypt", produces = {"text/plain"})
     public String decryptstring(@RequestParam(defaultValue = "Encryption String") String refer) {
         try {
