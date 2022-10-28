@@ -11,7 +11,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -61,6 +65,18 @@ public class Media {
         return ReturnValue;
     }
 
+    private String EncodeRef(String refer) {
+        String ReturnValue = "";
+        try {
+            CNCrypto aes = new CNCrypto("AES","!@CNET#$");
+            ReturnValue = aes.Encrypt(refer);
+            return ReturnValue;
+        }catch (Exception e) {
+
+        }
+        return ReturnValue;
+    }
+
     /**
      *
      * @param refer 요청 내용
@@ -91,10 +107,36 @@ public class Media {
         // 원본 파일명 세팅
         String SourceFilename = "";
 
-        SourceFilename = (Storage_Default + File.separator + filepath).replace("/",File.separator)
-                .replace(File.separator + File.separator, File.separator)
-                .replace(".mp3",".wav")
-                .replace(".jpg",".wav");
+        if (!Request[0].equals("01")) {
+            try {
+                String SendUrl = "http://10.144.31.30:8888/refer=" + EncodeRef(Request[0] + "|" + Request[1] + "|" + Request[2].replace(".mp3", "").replace(".wav", "").replace(".fft", "")) + ".fft";
+                URL url = new URL(SendUrl);
+                //url.openConnection();
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream(), "UTF-8"))) {
+                    for (String line; (line = reader.readLine()) != null; ) {
+                        //System.out.println(line);
+                        break;
+                    }
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            } catch (Exception e) {
+            }
+            String[] tempFile = filepath.split("\\/");
+            SourceFilename = (Storage_Default + File.separator + "Migration" + File.separator + "temp" + File.separator + tempFile[2]).replace("/",File.separator)
+                    .replace(File.separator + File.separator, File.separator)
+                    .replace(".mp3",".wav")
+                    .replace(".jpg",".wav");
+        } else {
+            SourceFilename = (Storage_Default + File.separator + filepath).replace("/",File.separator)
+                    .replace(File.separator + File.separator, File.separator)
+                    .replace(".mp3",".wav")
+                    .replace(".jpg",".wav");
+        }
+
+
+
+
         if (!LibFile.FileExist(SourceFilename)) {
             // 최초 자료가 없을 경우
             // 백업에서 조회한다
