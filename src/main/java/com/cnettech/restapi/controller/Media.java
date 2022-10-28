@@ -10,6 +10,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -285,6 +286,7 @@ public class Media {
             return null;
         }
     }
+
 
     @GetMapping("/download")
     public ResponseEntity Download(@RequestParam(defaultValue = "test") String refer) {
