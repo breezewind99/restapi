@@ -7,9 +7,9 @@ import ie.corballis.sox.Sox;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -30,8 +30,8 @@ public class WaveProcess {
 
     /**
      *
-     * @param Source_File
-     * @param Target_File
+     * @param Source_File 원본파일
+     * @param Target_File 대상파일
      * @return 대상 파일
      */
     public String WaveDecryption(String Source_File, String Target_File) {
@@ -99,8 +99,8 @@ public class WaveProcess {
     public boolean CheckRiff(String filename) throws HandledException {
         try {
             byte[] buffer = new byte[4];
-            InputStream is = new FileInputStream(filename);
-            is.read(buffer);
+            InputStream is = Files.newInputStream(Paths.get(filename));
+            Integer readByte = is.read(buffer,0,4);
             String coverted = new String(buffer);
             is.close();
             log.info("Check File RIFF : " + filename + ", Result : " + coverted);
@@ -187,6 +187,4 @@ public class WaveProcess {
         }
         return Target_File;
     }
-
-
 }
