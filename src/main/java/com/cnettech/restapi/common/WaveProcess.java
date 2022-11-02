@@ -122,7 +122,6 @@ public class WaveProcess {
             Date date = format.parse(str);
             Calendar calendar = new GregorianCalendar();
             calendar.setTime(date);
-//            int year = calendar.get(Calendar.YEAR);
             log.info("KeyValue : " + filename + ", Result : " + filename.charAt(3));
             return filename.substring(3, 4);
         } catch (ParseException e) {
