@@ -7,9 +7,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.List;
 
@@ -37,9 +35,8 @@ public class Process {
     @Value("${UDP.port_IVR2:5021}")
     private int port_IVR2;
 
-    @ApiIgnore
     @Operation(summary = "전수 녹취 시작", description = "전수녹취를 시작합니다.")
-    @PutMapping(value = "/record/recstart", consumes = {"application/json"}, produces = {"application/json"})
+    @PutMapping(value = "/record/start", consumes = {"application/json"}, produces = {"application/json"})
     public ReturnValue RecordStart(@RequestBody RecordRequest jsonObj) {
         ReturnValue returnValue = new ReturnValue();
         try {
@@ -56,9 +53,8 @@ public class Process {
     }
 
 
-    @ApiIgnore
     @Operation(summary = "전수녹취 종료", description = "전수녹취를 종료 합니다.")
-    @PutMapping(value = "/record/recstop", consumes = {"application/json"}, produces = {"application/json"})
+    @PutMapping(value = "/record/stop", consumes = {"application/json"}, produces = {"application/json"})
     public ReturnValue RecordStop(@RequestBody RecordRequest jsonObj) {
         ReturnValue returnValue = new ReturnValue();
         try {
@@ -93,7 +89,7 @@ public class Process {
     }
 
     @Operation(summary = "선택녹취 시작", description = "선택 녹취를 시작합니다.")
-    @PutMapping(value = "/record/start", consumes = {"application/json"}, produces = {"application/json"})
+    @PutMapping(value = "/select/start", consumes = {"application/json"}, produces = {"application/json"})
     public ReturnValue RecordSelStart(@RequestBody RecordRequest jsonObj) {
         ReturnValue returnValue = new ReturnValue();
         try {
@@ -112,7 +108,7 @@ public class Process {
 
 
     @Operation(summary = "선택녹취 종료", description = "선택녹취를 종료합니다.")
-    @PutMapping(value = "/record/stop", consumes = {"application/json"}, produces = {"application/json"})
+    @PutMapping(value = "/select/stop", consumes = {"application/json"}, produces = {"application/json"})
     public ReturnValue RecordSelStop(@RequestBody RecordRequest jsonObj) {
         ReturnValue returnValue = new ReturnValue();
         try {
@@ -130,7 +126,7 @@ public class Process {
     }
 
     @Operation(summary = "선택녹취 취소", description = "선택녹취를 취소합니다.")
-    @PutMapping(value = "/record/cancel", consumes = {"application/json"}, produces = {"application/json"})
+    @PutMapping(value = "/select/cancel", consumes = {"application/json"}, produces = {"application/json"})
     public ReturnValue RecordSelCancel(@RequestBody RecordRequest jsonObj) {
         ReturnValue returnValue = new ReturnValue();
         try {
