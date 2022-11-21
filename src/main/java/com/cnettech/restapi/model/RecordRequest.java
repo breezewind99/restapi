@@ -22,6 +22,9 @@ public class RecordRequest {
     @Schema(description = "녹취키값", example = "녹취키값")
     public String KEY;
 
+    @Schema(description = "인아웃", example = "인아웃")
+    public String INOUT;
+
     @Schema(description = "필드1", example = "필드1")
     public String DATA1;
 
