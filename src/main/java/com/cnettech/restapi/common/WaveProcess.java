@@ -15,10 +15,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import net.sourceforge.lame.*;
-
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
@@ -190,14 +186,5 @@ public class WaveProcess {
         }
         return Target_File;
     }
-//
-//    public ConvertMP3()
-//    {
-//        InputStream wavTestFileInputStream = LameEncoderTest.class.getResourceAsStream("/test.wav");
-//        AudioInputStream wavTestFileAudioInputStream = AudioSystem.getAudioInputStream(wavTestFileInputStream);
-//
-//        // when
-//        byte[] mp3Bytes = encodeToMp3(wavTestFileAudioInputStream);
-//        writeToFile(mp3Bytes, "build/test_output.mp3"); // Just for the records...
-//    }
+
 }
