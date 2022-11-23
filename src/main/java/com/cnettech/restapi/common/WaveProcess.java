@@ -130,61 +130,62 @@ public class WaveProcess {
         return "0";
     }
 
-    public String WaveConvert(String Source_File, String Target_File) {
+    public String WaveConvert(String Source_File) {
 
         // 대상 및 원본 파일명이 없는지 여부 체크
-        if (Source_File.equals("") || Target_File.equals("")) {
-            log.error(String.format("Error WaveConvert Source : %s, Target : %s", Source_File, Target_File));
+        if (Source_File.equals("")) {
+            log.error(String.format("Error WaveConvert Source : %s", Source_File));
             return "";
         }
-        log.info(String.format("WaveConvert Start Source : %s, Target : %s", Source_File, Target_File));
-
+        log.info(String.format("WaveConvert Start Source : %s", Source_File));
 
         // MP3로 요청이 올경우 작업처리
         String tmp_Source_File = Source_File.replace(".mp3",".wav");
-        String tmp_Target_File = Target_File.replace(".mp3",".wav");
-
+        String tmp_PCM_File = tmp_Source_File.replace(".wav",".pcm.wav");
+        String tmp_JPG_File = tmp_Source_File.replace(".wav", ".jpg");
+        String tmp_TXT_File = tmp_Source_File.replace(".wav", ".txt");
+        String tmp_MP3_File = tmp_Source_File.replace(".wav", ".mp3");
         if (tmp_Source_File.equals("")) return "";
 
         Sox sox_pcm = new Sox(Sox_Path);
-        Sox sox_mp3 = new Sox(Sox_Path);
-        try{
-            log.info(String.format("WaveConvert PCM Make Source : %s, Target : %s" ,tmp_Source_File, tmp_Target_File.replace(".wav",".pcm.wav")));
-            // Gsm To Pcm
-            sox_pcm
-                    .sampleRate(8000)
-                    .inputFile(tmp_Source_File)
-                    .encoding(SoXEncoding.SIGNED_INTEGER)
-                    .bits(16)
-                    .outputFile(tmp_Target_File.replace(".wav",".pcm.wav"))
-                    .execute();
-        } catch (Exception e){
-            log.error(String.format("Error WaveConvert Source : %s, Target : %s", Source_File, Target_File));
-            return "";
+        if (!LibFile.FileExist(tmp_PCM_File)) {
+            try {
+                log.info(String.format("WaveConvert PCM Make Source : %s, Target : %s", tmp_Source_File, tmp_PCM_File));
+                // Gsm To Pcm
+                sox_pcm
+                        .sampleRate(8000)
+                        .inputFile(tmp_Source_File)
+                        .encoding(SoXEncoding.SIGNED_INTEGER)
+                        .bits(16)
+                        .outputFile(tmp_PCM_File)
+                        .execute();
+            } catch (Exception e) {
+                log.error(String.format("Error WaveConvert PCM Make Source : %s, Target : %s", tmp_Source_File, tmp_PCM_File));
+                return "";
+            }
         }
-
         // FFT jpg이미지 생성
-        log.info(String.format("WaveConvert MakeImage Make Source : %s, Target : %s" ,tmp_Source_File, tmp_Target_File.replace(".wav",".jpg")));
-        FFTImage.MakeImage(tmp_Target_File.replace(".wav",".pcm.wav"), tmp_Target_File.replace(".wav",".jpg"));
+        if (!LibFile.FileExist(tmp_JPG_File)) {
+            log.info(String.format("WaveConvert MakeImage Make Source : %s, Target : %s" ,tmp_PCM_File, tmp_JPG_File));
+            FFTImage.MakeImage(tmp_PCM_File, tmp_JPG_File);
+        }
 
         // FFT txt파일 생성
-        log.info(String.format("WaveConvert MakeFFT Make Source : %s, Target : %s" ,tmp_Source_File, tmp_Target_File.replace(".wav",".txt")));
-        FFTImage.MakeFFT(tmp_Target_File.replace(".wav",".pcm.wav"), tmp_Target_File.replace(".wav",".txt"));
-
-        try{
-            log.info(String.format("WaveConvert MP3 Make Source : %s, Target : %s" ,tmp_Source_File, tmp_Target_File.replace(".wav",".mp3")));
-            // Gsm To MP3
-            sox_mp3
-                .sampleRate(8000)
-                .inputFile(tmp_Source_File)
-                .argument("-t", "mp3")
-                .outputFile(tmp_Target_File.replace(".wav",".mp3"))
-                .execute();
-        } catch (Exception e){
-            log.error(String.format("Error WaveConvert Source : %s, Target : %s", Source_File, Target_File));
-            return "";
+        if (!LibFile.FileExist(tmp_TXT_File)) {
+            log.info(String.format("WaveConvert MakeFFT Make Source : %s, Target : %s", tmp_Source_File, tmp_TXT_File));
+            FFTImage.MakeFFT(tmp_PCM_File, tmp_TXT_File);
         }
-        return Target_File;
+        if (!LibFile.FileExist(tmp_MP3_File)) {
+            try {
+                log.info(String.format("WaveConvert MP3 Make Source : %s, Target : %s", tmp_PCM_File, tmp_MP3_File));
+                // Gsm To MP3
+                MP3 mp3 = new MP3();
+                mp3.ConvertWaveToMp3(tmp_PCM_File, tmp_MP3_File);
+            } catch (Exception e) {
+                log.error(String.format("Error MP3 Make Source : %s, Target : %s", tmp_PCM_File, tmp_MP3_File));
+                return "";
+            }
+        }
+        return tmp_MP3_File;
     }
-
 }

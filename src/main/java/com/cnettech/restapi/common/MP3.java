@@ -42,7 +42,7 @@ public class MP3 {
      * The actual encoding method to be used in your own project.
      */
     private byte[] encodeToMp3(AudioInputStream audioInputStream) throws IOException {
-        LameEncoder encoder = new LameEncoder(audioInputStream.getFormat(), GOOD_QUALITY_BITRATE, MPEGMode.STEREO, Lame.QUALITY_HIGHEST, USE_VARIABLE_BITRATE);
+        LameEncoder encoder = new LameEncoder(audioInputStream.getFormat(), GOOD_QUALITY_BITRATE, MPEGMode.MONO, Lame.QUALITY_MIDDLE_LOW, USE_VARIABLE_BITRATE);
 
         ByteArrayOutputStream mp3 = new ByteArrayOutputStream();
         byte[] inputBuffer = new byte[encoder.getPCMBufferSize()];

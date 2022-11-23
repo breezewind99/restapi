@@ -104,10 +104,13 @@ public class Media {
 
         // 파일 경로
         String filepath = Request[2];
-
+        // 임시 파일명 세팅
+        String tmpFilename = "";
         // 원본 파일명 세팅
         String SourceFilename = "";
 
+        /*
+        // 롯데 홈쇼핑 관련 소스
         if (!Request[0].equals("01")) {
             try {
                 String SendUrl = "http://10.144.31.30:8888/refer=" + EncodeRef(Request[0] + "|" + Request[1] + "|" + Request[2].replace(".mp3", "").replace(".wav", "").replace(".fft", "")) + ".fft";
@@ -135,20 +138,37 @@ public class Media {
                     .replace(".jpg",".wav");
         }
 
-
-
-
+        log.info(String.format("Main Storage Find File = %s", SourceFilename));
         if (!LibFile.FileExist(SourceFilename)) {
             // 최초 자료가 없을 경우
             // 백업에서 조회한다
+            log.info(String.format("Backup Storage Find File = %s", SourceFilename));
             SourceFilename = (Storage_Backup + File.separator + "Record" + File.separator + filepath).replace("/", File.separator)
                     .replace(File.separator + File.separator, File.separator)
                     .replace(".mp3", ".wav")
                     .replace(".jpg", ".wav");
         }
+        // 롯데 홈쇼핑 관련 소스 종료
+        */
+        tmpFilename = (Storage_Default + File.separator + filepath).replace("/",File.separator).replace(File.separator + File.separator, File.separator);
+        SourceFilename = tmpFilename
+                .replace(".mp3",".wav")
+                .replace(".jpg",".wav");
+        log.info(String.format("Main Storage Find File = %s", SourceFilename));
+        if (!LibFile.FileExist(SourceFilename)) {
+            tmpFilename = (Storage_Backup + File.separator + filepath).replace("/",File.separator).replace(File.separator + File.separator, File.separator);
+            // 최초 자료가 없을 경우
+            // 백업에서 조회한다
+            SourceFilename = tmpFilename
+                    .replace(".mp3", ".wav")
+                    .replace(".jpg", ".wav");
+            log.info(String.format("Backup Storage Find File = %s", SourceFilename));
+        }
+
 
         // 대상 파일명 세팅
-        String TargetFilename = TempPath + Paths.get(SourceFilename).getFileName().toString();
+
+        String TargetFilename = TempPath + Paths.get(tmpFilename).getFileName().toString();
 
         log.info(String.format("Storage File = %s, Target File = %s", SourceFilename, TargetFilename));
 
@@ -164,11 +184,11 @@ public class Media {
                 // 임시 폴더가 없을경우 생성
                 Files.createDirectories(Paths.get(TargetFilename).getParent());
                 if(waveProcess == null) waveProcess = new WaveProcess(Sox_Path);
-                String tmp_SourceFilename = waveProcess.WaveDecryption(SourceFilename, TargetFilename);
-                TargetFilename = waveProcess.WaveConvert(tmp_SourceFilename, TargetFilename);
+                String tmp_SourceFilename = waveProcess.WaveDecryption(SourceFilename, TargetFilename.replace(".mp3",".wav"));
+                TargetFilename = waveProcess.WaveConvert(tmp_SourceFilename);
             } catch (Exception e) {
-                log.error("WaveConvert Error : " + refer);
-                //e.printStackTrace();
+                log.error("WaveConvert Error : " + TargetFilename);
+                e.printStackTrace();
                 return "";
             }
         }
