@@ -127,13 +127,13 @@ public class Media {
             } catch (Exception e) {
             }
             String[] tempFile = filepath.split("\\/");
-            SourceFilename = (Storage_Default + File.separator + "Migration" + File.separator + "temp" + File.separator + tempFile[2]).replace("/",File.separator)
-                    .replace(File.separator + File.separator, File.separator)
+            tmpFilename = (Storage_Default + File.separator + "Migration" + File.separator + "temp" + File.separator + tempFile[2]).replace("/",File.separator).replace(File.separator + File.separator, File.separator)
+            SourceFilename = tmpFilename
                     .replace(".mp3",".wav")
                     .replace(".jpg",".wav");
         } else {
-            SourceFilename = (Storage_Default + File.separator + "Record" + File.separator + filepath).replace("/",File.separator)
-                    .replace(File.separator + File.separator, File.separator)
+            tmpFilename = (Storage_Default + File.separator + "Record" + File.separator + filepath).replace("/",File.separator).replace(File.separator + File.separator, File.separator)
+            SourceFilename = tmpFilename
                     .replace(".mp3",".wav")
                     .replace(".jpg",".wav");
         }
@@ -143,8 +143,10 @@ public class Media {
             // 최초 자료가 없을 경우
             // 백업에서 조회한다
             log.info(String.format("Backup Storage Find File = %s", SourceFilename));
-            SourceFilename = (Storage_Backup + File.separator + "Record" + File.separator + filepath).replace("/", File.separator)
-                    .replace(File.separator + File.separator, File.separator)
+            tmpFilename = (Storage_Backup + File.separator + "Record" + File.separator + filepath).replace("/", File.separator).replace(File.separator + File.separator, File.separator);
+            // 최초 자료가 없을 경우
+            // 백업에서 조회한다
+            SourceFilename = tmpFilename
                     .replace(".mp3", ".wav")
                     .replace(".jpg", ".wav");
         }
