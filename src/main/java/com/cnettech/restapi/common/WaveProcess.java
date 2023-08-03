@@ -125,7 +125,9 @@ public class WaveProcess {
             log.info("KeyValue : " + filename + ", Result : " + filename.charAt(3));
             return filename.substring(3, 4);
         } catch (ParseException e) {
-            log.error("KeyValue Error : " + filename);
+            log.error("KeyValue Error : " + filename + ", " + e.getMessage());
+        } catch (Exception e) {
+            log.error("KeyValue Error : " + filename + ", " + e.getMessage());
         }
         return "0";
     }

@@ -17,7 +17,7 @@ import springfox.documentation.annotations.ApiIgnore;
 @RequestMapping("/encryption")
 public class Encryption {
 
-    @ApiIgnore
+//    @ApiIgnore
     @GetMapping(value = "/encrypt", produces = {"text/plain"})
     public String encryptstring(@RequestParam(defaultValue = "Normal String") String refer) {
         try {
@@ -29,7 +29,7 @@ public class Encryption {
         }
     }
 
-    @ApiIgnore
+//    @ApiIgnore
     @GetMapping(value ="/decrypt", produces = {"text/plain"})
     public String decryptstring(@RequestParam(defaultValue = "Encryption String") String refer) {
         try {

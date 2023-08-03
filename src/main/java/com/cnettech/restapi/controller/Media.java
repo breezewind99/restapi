@@ -10,13 +10,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import springfox.documentation.annotations.ApiIgnore;
-
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -169,9 +163,7 @@ public class Media {
 
 
         // 대상 파일명 세팅
-
         String TargetFilename = TempPath + Paths.get(tmpFilename).getFileName().toString();
-
         log.info(String.format("Storage File = %s, Target File = %s", SourceFilename, TargetFilename));
 
         // 원본 파일 존재 여부 확인

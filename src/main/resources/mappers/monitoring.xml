@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="monitoring">
+
+<!-- :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: INCLUDE ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::  -->
+
+<!-- ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::  QUERY  ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::  -->
+	<select id="selectIdCheck" parameterType="string" resultType="int">
+		/* 사용자 존재 유무 체크 selectIdCheck */
+		select count(*) as id_cnt
+		from tbl_user
+		where user_id = #{login_id}
+	</select>
+
+<!-- :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: INSERT :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::  -->
+	<!-- 오늘 날짜 로그인 결과 업데이트 updateLoginResult -->
+	<insert id="insertMonitoring" parameterType="map">
+		/* 오늘 날짜 로그인 결과 업데이트 updateLoginResult */
+		INSERT INTO tbl_dash_monlist(Mon_System,Mon_Date,Mon_Time,Mon_Local_Phone,Mon_Process,Mon_Alram)
+		VALUES(#{Mon_System},TO_CHAR(current_date,'YYYYMMDD'),TO_CHAR(now() , 'HH24MISS'),'',#{Mon_Process},#{Mon_Alram})
+	</insert>
+
+<!-- :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: UPDATE :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::  -->
+	<!-- 오늘 날짜 로그인 결과 업데이트 updateLoginResult -->
+	<update id="updateMonitoring" parameterType="map">
+		/* 오늘 날짜 로그인 결과 업데이트 updateLoginResult */
+		update tbl_dash_monitoring
+		SET
+		    mon_date = TO_CHAR(current_date,'YYYYMMDD'),
+		    mon_time = TO_CHAR(now() , 'HH24MISS'),
+			mon_cpu = #{cpu},
+			mon_mem = #{mem},
+			mon_hdd = #{hdd},
+			mon_process = #{process}
+		where  mon_system = #{systemcode}
+	</update>
+</mapper>
